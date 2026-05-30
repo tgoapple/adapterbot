@@ -22,18 +22,20 @@
     min-height:100vh;
     display:flex; flex-direction:column; align-items:center;
     text-align:center;
-    padding: 40px 16px 30px;
+    padding: 0 16px;
     position:relative;
     overflow:hidden;
   }
   .hero-top {
-    flex-shrink:0;
-    padding-top:60px;
+    flex:1;
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
+    padding-bottom:24px;
   }
   .hero-bottom {
     flex:1;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
     width:100%;
+    padding-top:24px;
   }
   .hero::before {
     content:''; position:absolute; inset:0;
@@ -255,11 +257,7 @@
 
   /* ── DESKTOP ──────────────────────────────── */
   @media(min-width:900px) {
-    nav { padding:16px 36px; }
-    nav .logo { font-size:19px; }
-    nav .cta { padding:10px 24px; font-size:13px; }
-
-    .hero { padding:120px 24px 40px; }
+    .hero { padding: 0 24px; }
     .hero h1 { font-size:52px; }
     .hero p { font-size:15px; max-width:500px; margin-bottom:24px; }
     .hero-content { gap:40px; }
