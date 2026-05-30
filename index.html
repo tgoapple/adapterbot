@@ -37,8 +37,6 @@
     padding: 8px 18px; border-radius: 100px; font-size: 12px; font-weight: 600;
     cursor: pointer;
   }
-
-  /* ── HERO: small, tight ──────────────────── */
   .hero {
     min-height: 100vh;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -300,17 +298,17 @@
 
 <nav>
   <div class="logo">adapter<span class="h">❤</span>Bot</div>
-  <button class="cta">Get adapterBot →</button>
+  <button class="cta" onclick="document.getElementById('split').scrollIntoView({behavior:'smooth'})">Get adapterBot →</button>
 </nav>
 
 <section class="hero">
   <h1>Automate your<br>customer service <span class="g">on Instagram</span></h1>
   <p>Your customers are already on Instagram. adapterBot turns your link in bio into a 24/7 AI assistant — no website, no app, no friction.</p>
-  <button class="btn-primary">Get adapterBot →</button>
+  <button class="btn-primary" onclick="document.getElementById('split').scrollIntoView({behavior:'smooth'})">Get adapterBot →</button>
 </section>
 
 <!-- PHONE + PRICING -->
-<div class="split">
+<div class="split" id="split">
   <div class="phone-wrap" style="padding:0;">
     <div class="phone">
       <div class="phone-notch"></div>
