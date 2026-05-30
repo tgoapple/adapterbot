@@ -17,13 +17,33 @@
     overflow-x: hidden;
   }
 
+  /* ── NAV ────────────────────────────────── */
+  nav {
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px;
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+    padding-top: env(safe-area-inset-top, 10px);
+    background: var(--bg);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  nav .logo { font-size:17px; font-weight:700; color:#eee; letter-spacing:-0.02em; }
+  nav .logo .h { color:var(--purple); }
+  nav .cta {
+    background:var(--purple); color:#fff; border:none;
+    padding:8px 18px; border-radius:100px; font-size:12px; font-weight:600;
+    cursor:pointer; transition:transform .15s, box-shadow .15s;
+  }
+  nav .cta:hover { transform:scale(1.04); box-shadow:0 4px 20px rgba(131,58,180,0.3); }
+
   /* ── HERO (everything in one view) ──────── */
   .hero {
     min-height:100vh;
     display:flex; flex-direction:column; align-items:center;
     text-align:center;
     padding: 0 16px;
-    padding-top: env(safe-area-inset-top, 50px);
+    padding-top: calc(env(safe-area-inset-top, 50px) + 60px);
     padding-bottom: env(safe-area-inset-bottom, 20px);
     position:relative;
     overflow:hidden;
@@ -308,6 +328,11 @@
 </style>
 </head>
 <body>
+
+<nav>
+  <div class="logo">Adapter<span class="h">❤</span>Bot</div>
+  <button class="cta" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">Get AdapterBot →</button>
+</nav>
 
 <!-- ====== HERO = everything in one view ====== -->
 <section class="hero">
