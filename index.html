@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>adapterBot — automate your customer service on Instagram</title>
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  :root { --purple: #833ab4; --bg: #0a0a0a; --card: #141414; --border: #1e1e1e; --text: #eee; --radius: 16px; }
+
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV: thin, compact ──────────────────── */
+  nav {
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px;
+    background: rgba(10,10,10,0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  nav .logo {
+    font-size: 17px; font-weight: 700; color: #eee;
+    letter-spacing: -0.02em;
+  }
+  nav .logo .h { color: var(--purple); }
+  nav .cta {
+    background: var(--purple); color: #fff; border: none;
+    padding: 8px 18px; border-radius: 100px; font-size: 12px; font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* ── HERO: small, tight ──────────────────── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 80px 20px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(131,58,180,0.10) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero h1 {
+    font-size: 38px; font-weight: 750;
+    letter-spacing: -0.04em; line-height: 1.05;
+    margin-bottom: 12px;
+  }
+  .hero h1 .g {
+    background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    font-size: 15px; color: #777;
+    max-width: 340px; line-height: 1.6; margin-bottom: 24px;
+  }
+  .btn-primary {
+    background: var(--purple); color: #fff; border: none;
+    padding: 14px 32px; border-radius: 100px; font-size: 15px; font-weight: 600;
+    cursor: pointer; width: 100%; max-width: 280px;
+  }
+
+  /* ── PHONE MOCKUP ────────────────────────── */
+  .phone-wrap {
+    padding: 40px 16px;
+    display: flex; justify-content: center;
+  }
+  .phone {
+    width: 280px; background: #131313; border-radius: 36px;
+    border: 2px solid #222; padding: 6px;
+    box-shadow: 0 20px 60px rgba(131,58,180,0.10);
+    position: relative;
+  }
+  .phone-screen { background: var(--bg); border-radius: 28px; overflow: hidden; }
+  .phone-notch {
+    position: absolute; top:0; left:50%; transform:translateX(-50%);
+    width: 100px; height:24px; background:#131313;
+    border-radius:0 0 12px 12px; z-index:2;
+  }
+  .ph-top {
+    display: flex; align-items: center; gap:8px; padding:10px 12px;
+    border-bottom:1px solid #1a1a1a;
+  }
+  .ph-av {
+    width:34px; height:34px; border-radius:50%; padding:2px;
+    background:linear-gradient(135deg,#833ab4,#fd1d1d,#fcb045); flex-shrink:0;
+  }
+  .ph-av-in {
+    width:100%; height:100%; border-radius:50%; background:#111;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; color:var(--purple);
+  }
+  .ph-info { flex:1; }
+  .ph-info .n { font-size:11px; font-weight:700; }
+  .ph-info .h { font-size:9px; color:#555; }
+  .ph-chat { padding:10px; min-height:320px; }
+  .m {
+    font-size:11.5px; padding:6px 10px; border-radius:12px;
+    margin-bottom:5px; max-width:82%; line-height:1.5;
+  }
+  .m.in { background:#1a1a1a; color:#ccc; border-bottom-left-radius:2px; }
+  .m.out {
+    background:var(--purple); color:#fff; margin-left:auto;
+    border-bottom-right-radius:2px;
+  }
+  .m.bot { background:#1a1a1a; color:#999; border-bottom-left-radius:2px; }
+  .ph-in {
+    display:flex; gap:6px; padding:7px 10px; border-top:1px solid #1a1a1a;
+  }
+  .ph-in input {
+    flex:1; background:#1a1a1a; border:none; border-radius:16px;
+    padding:6px 10px; font-size:11px; color:#ccc; outline:none;
+    font-family:inherit;
+  }
+  .ph-in button {
+    background:none; border:none; color:var(--purple);
+    font-weight:600; font-size:11px; cursor:pointer;
+  }
+
+  /* ── PRICING ─────────────────────────────── */
+  .pricing-wrap { padding: 20px 20px 40px; }
+  .price-card {
+    background: linear-gradient(145deg, #141414, #181818);
+    border: 1px solid rgba(131,58,180,0.25);
+    border-radius: var(--radius); padding: 28px 24px;
+  }
+  .price-card h2 {
+    font-size: 22px; font-weight: 700; letter-spacing:-0.03em;
+    margin-bottom:2px;
+  }
+  .price-card h2 .g {
+    background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .price-card .sub { font-size:13px; color:#777; margin-bottom:20px; }
+  .price-card .price {
+    font-size: 38px; font-weight: 750; margin:8px 0 2px;
+  }
+  .price-card .price span { font-size:14px; color:#888; font-weight:400; }
+  .price-card .free {
+    font-size:12px; color:#44d62c; margin-bottom:16px;
+    display:flex; align-items:center; gap:4px;
+  }
+  .price-card ul { list-style:none; margin-bottom:20px; }
+  .price-card ul li {
+    font-size:12px; color:#999; padding:4px 0; line-height:1.5;
+    padding-left:18px; position:relative;
+  }
+  .price-card ul li::before {
+    content:'✓'; position:absolute; left:0;
+    color:var(--purple); font-weight:700;
+  }
+  .price-card .btn { width:100%; }
+  .github-tag {
+    display:flex; align-items:center; gap:6px;
+    padding:10px 14px; margin-top:12px;
+    border-radius:12px; font-size:12px; color:#666;
+    background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);
+  }
+  .github-tag a { color:var(--purple); text-decoration:none; font-weight:500; }
+
+  /* ── FEATURES ─────────────────────────────── */
+  .features { padding: 40px 20px 60px; }
+  .features h2 {
+    font-size: 22px; font-weight: 700; letter-spacing:-0.03em;
+    text-align:center; margin-bottom:28px;
+  }
+  .features h2 .g {
+    background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .feat {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:12px; padding:20px 18px; margin-bottom:12px;
+  }
+  .feat .ic {
+    width:32px; height:32px; border-radius:8px;
+    background:rgba(131,58,180,0.1);
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; margin-bottom:10px;
+  }
+  .feat h3 { font-size:14px; font-weight:600; margin-bottom:4px; }
+  .feat p { font-size:12.5px; color:#888; line-height:1.6; }
+
+  /* ── HOW ──────────────────────────────────── */
+  .how { padding: 40px 20px 60px; text-align:center; }
+  .how h2 {
+    font-size: 22px; font-weight: 700; letter-spacing:-0.03em;
+    margin-bottom:28px;
+  }
+  .how h2 .g {
+    background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .step {
+    display:flex; align-items:flex-start; gap:14px;
+    text-align:left; margin-bottom:20px;
+  }
+  .step-n {
+    width:36px; height:36px; border-radius:50%; background:var(--purple);
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:700; flex-shrink:0; margin-top:2px;
+  }
+  .step h3 { font-size:14px; font-weight:600; margin-bottom:2px; }
+  .step p { font-size:12.5px; color:#888; line-height:1.6; }
+
+  /* ── FAQ ───────────────────────────────────── */
+  .faq { padding: 40px 20px 40px; }
+  .faq h2 {
+    font-size: 22px; font-weight: 700; letter-spacing:-0.03em;
+    text-align:center; margin-bottom:24px;
+  }
+  .faq h2 .g {
+    background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .faq-item { border-bottom:1px solid var(--border); padding:14px 0; cursor:pointer; }
+  .faq-q {
+    display:flex; justify-content:space-between; align-items:center;
+    font-size:13px; font-weight:500;
+  }
+  .faq-q .t { font-size:16px; color:#555; transition:transform .2s; }
+  .faq-item.open .faq-q .t { transform:rotate(45deg); }
+  .faq-a { margin-top:8px; font-size:12.5px; color:#888; line-height:1.7; display:none; }
+  .faq-item.open .faq-a { display:block; }
+
+  /* ── FOOTER ────────────────────────────────── */
+  footer {
+    text-align:center; padding:40px 20px 30px;
+    border-top:1px solid var(--border); color:#444; font-size:12px;
+  }
+  footer .ls { font-size:14px; font-weight:600; color:#777; margin-bottom:4px; }
+  footer .ls .h { color:var(--purple); }
+
+  @keyframes pulse {
+    0%,100%{opacity:0.4}50%{opacity:1}
+  }
+  .dl {
+    width:4px; height:4px; border-radius:50%;
+    background:#44d62c; display:inline-block;
+    animation:pulse 2s ease-in-out infinite; margin-right:2px;
+  }
+
+  /* ── DESKTOP BREAKPOINT ─────────────────── */
+  @media(min-width:800px) {
+    nav { padding: 16px 36px; }
+    nav .logo { font-size: 19px; }
+    nav .cta { padding: 10px 24px; font-size:13px; }
+    .hero h1 { font-size:clamp(44px,7vw,80px); }
+    .hero p { font-size:clamp(15px,1.8vw,20px); max-width:600px; }
+    .btn-primary { width:auto; }
+
+    .split {
+      display:flex; flex-wrap:wrap; align-items:flex-start;
+      justify-content:center; gap:60px;
+      max-width:1100px; margin:0 auto; padding:80px 24px 120px;
+    }
+    .phone { width:300px; }
+    .pricing-wrap { flex:1; min-width:300px; max-width:420px; padding:0; }
+    .price-card { padding:32px 28px; }
+
+    .features { max-width:1100px; margin:0 auto; padding:80px 24px 100px; }
+    .features h2 { font-size:clamp(28px,4vw,44px); }
+    .feat-grid {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:20px;
+    }
+    .feat { margin-bottom:0; padding:28px 24px; }
+
+    .how { max-width:900px; margin:0 auto; padding:80px 24px 100px; }
+    .how h2 { font-size:clamp(28px,4vw,44px); }
+    .steps { display:flex; gap:20px; justify-content:center; }
+    .step { flex-direction:column; text-align:center; max-width:280px; margin-bottom:0; }
+    .step-n { margin:0 auto 12px; }
+
+    .faq { max-width:680px; margin:0 auto; padding:80px 24px; }
+    .faq h2 { font-size:clamp(26px,3.5vw,38px); }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">adapter<span class="h">❤</span>Bot</div>
+  <button class="cta">Get adapterBot →</button>
+</nav>
+
+<section class="hero">
+  <h1>Automate your<br>customer service <span class="g">on Instagram</span></h1>
+  <p>Your customers are already on Instagram. adapterBot turns your link in bio into a 24/7 AI assistant — no website, no app, no friction.</p>
+  <button class="btn-primary">Get adapterBot →</button>
+</section>
+
+<!-- PHONE + PRICING -->
+<div class="split">
+  <div class="phone-wrap" style="padding:0;">
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="ph-top">
+          <div class="ph-av"><div class="ph-av-in">☕</div></div>
+          <div class="ph-info">
+            <div class="n">The Coffee Shop</div>
+            <div class="h">@thecoffeeshop</div>
+          </div>
+        </div>
+        <div class="ph-chat" id="chat">
+          <div class="m in">Hey! Are you open today? 🙋</div>
+          <div class="m bot">Hi! Yes, we're open 8am–6pm. Our special is a flat white &amp; a pastry for £7.50 ☕️</div>
+          <div class="m in">Can I get oat milk with that?</div>
+          <div class="m bot">Absolutely — oat, almond, or soya, no extra charge. Saved under your name! See you soon 🫶</div>
+          <div class="m in">Amazing, thank you!</div>
+          <div class="m bot">Any time! We're at 24 High Street — 2 mins from the station ✨</div>
+        </div>
+        <div class="ph-in">
+          <input type="text" placeholder="Type a message..." id="inp">
+          <button id="snd">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pricing-wrap">
+    <div class="price-card">
+      <h2>Simple <span class="g">pricing</span></h2>
+      <p class="sub">No tiers, no upsells, no hidden fees. Cancel anytime.</p>
+      <div class="price">£49.95 <span>/mo</span></div>
+      <p class="free">✓ Free setup — or DIY on GitHub</p>
+      <ul>
+        <li>AI chatbot trained on your business</li>
+        <li>Custom personality matching your brand</li>
+        <li>Instagram-style landing page</li>
+        <li>Dashboard &amp; insights</li>
+        <li>Priority support</li>
+        <li>Monthly optimisation review</li>
+        <li>Cancel anytime, no contracts</li>
+      </ul>
+      <button class="btn-primary" style="width:100%">Get adapterBot</button>
+      <div class="github-tag">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="#666"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        <span>Deploy for free on <a href="#">GitHub</a> — or we handle everything for £49.95/mo</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features">
+  <h2>Everything you need. <span class="g">Nothing you don't.</span></h2>
+  <div class="feat-grid">
+    <div class="feat">
+      <div class="ic">📱</div>
+      <h3>Lives in Instagram</h3>
+      <p>Your chatbot lives on a page that looks just like Instagram. Customers feel at home instantly — no learning curve, no friction.</p>
+    </div>
+    <div class="feat">
+      <div class="ic">🤖</div>
+      <h3>AI-Powered Responses</h3>
+      <p>Trained on your business. Hours, menu, pricing, FAQs — your bot knows it all and sounds like a real member of your team.</p>
+    </div>
+    <div class="feat">
+      <div class="ic">🔗</div>
+      <h3>One Link. That's It.</h3>
+      <p>Drop the link in your Instagram bio. No embedding, no code, no IT team. Customers tap and chat — that's the whole setup.</p>
+    </div>
+    <div class="feat">
+      <div class="ic">⚡</div>
+      <h3>24/7 Availability</h3>
+      <p>Never miss a message again. adapterBot handles enquiries while you sleep, work, or serve other customers.</p>
+    </div>
+    <div class="feat">
+      <div class="ic">💜</div>
+      <h3>Personality Match</h3>
+      <p>We tune your bot's tone to match yours — friendly, professional, playful, whatever fits your brand. It sounds like you.</p>
+    </div>
+    <div class="feat">
+      <div class="ic">📊</div>
+      <h3>See What Works</h3>
+      <p>Every conversation gives you insight. See what customers ask most, what they want, and how to serve them better.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section class="how">
+  <h2>Three steps to <span class="g">automate your Instagram</span></h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-n">1</div>
+      <div>
+        <h3>Tell Us About Your Business</h3>
+        <p>Your hours, your menu, your FAQs, your voice. We learn everything so your bot sounds like you.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-n">2</div>
+      <div>
+        <h3>We Build Your Page</h3>
+        <p>An Instagram-style landing page with your bot ready to chat. Looks like your profile, works like a concierge.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-n">3</div>
+      <div>
+        <h3>Drop the Link in Your Bio</h3>
+        <p>One link, pasted once. Now every visitor can talk to your business instantly — no app store, no signup.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq">
+  <h2>Frequently <span class="g">asked</span></h2>
+  <div class="faq-item open">
+    <div class="faq-q"><span>How does adapterBot work?</span><span class="t">+</span></div>
+    <div class="faq-a">We create an Instagram-style landing page for your business with an AI chatbot embedded in it. You drop the link in your bio. When customers tap it, they land on a familiar page and start chatting instantly — no downloads, no sign-ups.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q"><span>Do I need a website?</span><span class="t">+</span></div>
+    <div class="faq-a">Nope. adapterBot is your customer service page. It lives at its own URL — all you need is the link in your bio. No hosting, no domain setup, no technical skills required.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q"><span>Can I deploy it myself for free?</span><span class="t">+</span></div>
+    <div class="faq-a">Yes. The full adapterBot codebase is available on GitHub. Deploy it yourself on any free hosting — or we handle everything for £49.95/mo.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q"><span>Will it sound like my business?</span><span class="t">+</span></div>
+    <div class="faq-a">We train your bot on your business and match its personality to yours — warm, professional, playful, whatever fits your brand.</div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q"><span>Can I cancel anytime?</span><span class="t">+</span></div>
+    <div class="faq-a">Absolutely. No contracts, no lock-in. Cancel whenever you want. Your page stays up until the end of your billing period.</div>
+  </div>
+</section>
+
+<footer>
+  <div class="ls">adapter<span class="h">❤</span>Bot</div>
+  <p>Automate your customer service on Instagram.</p>
+</footer>
+
+<script>
+const i = document.getElementById('inp'), s = document.getElementById('snd'), c = document.getElementById('chat');
+const r = ["Of course! We take card, Apple Pay, and cash 🎉","Our caramel latte is the fan favourite!","We're at 24 High Street — 2 mins from the station","Oat, almond, or soya — all free!","Buy 9 coffees, get the 10th free!","Brunch until 2pm. The avocado toast is legendary 🥑","Just ask for me at the counter 💜"];
+let n = 0;
+s.addEventListener('click',()=>t());
+i.addEventListener('keydown',e=>{if(e.key==='Enter')t();});
+function t(){
+  const v=i.value.trim(); if(!v)return;
+  const o=document.createElement('div'); o.className='m out'; o.textContent=v; c.appendChild(o); i.value=''; n++;
+  setTimeout(()=>{
+    const b=document.createElement('div'); b.className='m bot';
+    b.textContent=r[(n-1)%r.length]; c.appendChild(b); c.scrollTop=c.scrollHeight;
+  },500+Math.random()*700);
+}
+document.querySelectorAll('.faq-q').forEach(q=>{q.addEventListener('click',()=>q.parentElement.classList.toggle('open'));});
+</script>
+</body>
+</html>
