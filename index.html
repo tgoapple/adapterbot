@@ -139,10 +139,19 @@
     font-size:11px; color:#44d62c; margin-bottom:10px;
     display:flex; align-items:center; gap:4px;
   }
-  .pc-top .free {
-    font-size:14px; font-weight:600; color:#44d62c;
-    text-align:center; padding:6px 0 8px;
+  .pc-top {
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:0 0 8px;
   }
+  .pc-top .free {
+    font-size:14px; font-weight:600; color:#44d62c; flex-shrink:0;
+  }
+  .btn-green {
+    background:#44d62c; color:#000; border:none;
+    padding:8px 18px; border-radius:100px; font-size:12px; font-weight:700;
+    cursor:pointer; white-space:nowrap; transition:transform .15s, box-shadow .15s;
+  }
+  .btn-green:hover { transform:scale(1.04); box-shadow:0 4px 16px rgba(68,214,44,0.3); }
   .pc-bottom { display:flex; align-items:center; justify-content:space-between; gap:12px; }
   .pc-bottom-text { text-align:left; }
   .pc-bottom-text h2 {
@@ -350,6 +359,7 @@
       <div class="pc">
         <div class="pc-top">
           <p class="free">✓ Free on GitHub or we handle it</p>
+          <button class="btn-green">Get It Now</button>
         </div>
         <ul>
           <li>AI trained on your biz</li>
