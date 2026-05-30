@@ -38,11 +38,20 @@
   /* ── HERO (everything in one view) ──────── */
   .hero {
     min-height:100vh;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    display:flex; flex-direction:column; align-items:center;
     text-align:center;
-    padding: 100px 16px 30px;
+    padding: 80px 16px 30px;
     position:relative;
     overflow:hidden;
+  }
+  .hero-top {
+    flex-shrink:0;
+    padding-top:60px;
+  }
+  .hero-bottom {
+    flex:1;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    width:100%;
   }
   .hero::before {
     content:''; position:absolute; inset:0;
@@ -311,12 +320,14 @@
 
 <!-- ====== HERO = everything in one view ====== -->
 <section class="hero">
-  <h1>Automate your<br>customer service <span class="g">on Instagram</span></h1>
-  <p>Your customers are already on Instagram. adapterBot turns your link in bio into a 24/7 AI assistant.</p>
-
-  <div class="hero-content">
-    <!-- Phone mockup -->
-    <div class="phone">
+  <div class="hero-top">
+    <h1>Automate your<br>customer service <span class="g">on Instagram</span></h1>
+    <p>Your customers are already on Instagram. adapterBot turns your link in bio into a 24/7 AI assistant.</p>
+  </div>
+  <div class="hero-bottom">
+    <div class="hero-content">
+      <!-- Phone mockup -->
+      <div class="phone">
       <div class="phone-notch"></div>
       <div class="phone-screen">
         <div class="ph-top">
